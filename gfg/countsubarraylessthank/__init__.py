@@ -17,4 +17,4 @@ def subArrayLessThanK(a, n, k):
             prod += 1
             left_counter += 1
 
-    return prod
+    return
