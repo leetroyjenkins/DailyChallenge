@@ -1,7 +1,9 @@
+import gfg.challenges
 from gfg import maxindexdiff
 from gfg import stockBuyAndSell
 from gfg import countsubarraylessthank
 from gfg import boundarytraversalofmatrix
+from gfg import challenges
 
 
 class TestMaxIndexDiff:
@@ -85,5 +87,23 @@ class TestBoundaryTraversalOfMatrix:
         self.m = 1
         self.matrix =[[3], [8], [2]]
         assert boundarytraversalofmatrix.boundaryTraversal(self.matrix, self.n , self.m) == [3, 8, 2]
+
+
+class TestcolumnNameFromAGivenColumnNumber:
+    def test_column_name_01(self):
+        self.n = 26
+        assert gfg.challenges.columnNameFromAGivenColumnNumber(self.n) == 'Z'
+
+    def test_column_name_02(self):
+        self.n = 1
+        assert gfg.challenges.columnNameFromAGivenColumnNumber(self.n) == 'A'
+
+    def test_column_name_03(self):
+        self.n = 27
+        assert gfg.challenges.columnNameFromAGivenColumnNumber(self.n) == 'AA'
+
+    def test_column_name_04(self):
+        self.n = 676
+        assert gfg.challenges.columnNameFromAGivenColumnNumber(self.n) == 'AAA'
 
 
