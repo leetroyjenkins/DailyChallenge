@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction
 
 import os, uuid
@@ -13,6 +15,19 @@ try:
 
     # Create the BlobServiceClient object
     blob_service_client = BlobServiceClient(account_url, credential=default_credential)
+
+    # Check for existing container names
+    container_list = [i for i in blob_service_client.list_containers()]
+
+    # Check if <testcontainer> exists
+
+    # Check for files in the test_results dir
+
+    # Check if the files exist in the container
+
+    # Upload any files that do not exist to the container
+
+    # Delete the files from local
 
     # Create a unique name for the container
     container_name = str(uuid.uuid4())
