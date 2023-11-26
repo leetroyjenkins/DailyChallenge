@@ -2,15 +2,15 @@
 
 # https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction
 
-import os, uuid
+import os
 from azure.identity import DefaultAzureCredential
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+from azure.storage.blob import BlobServiceClient
 
 try:
-    print("Azure Blob Storage Python quickstart sample")
+    print('\nPytest log upload to Azure blob script starting.')
 
     # Quickstart code goes here
-    account_url = "https://pastrychefazurestorage.blob.core.windows.net"
+    account_url = 'https://pastrychefazurestorage.blob.core.windows.net'
     default_credential = DefaultAzureCredential()
 
     # Create the BlobServiceClient object
@@ -19,69 +19,65 @@ try:
     # Check for existing container names
     container_list = [i for i in blob_service_client.list_containers()]
 
-    # Check if <testcontainer> exists
+    # Declare the container name used. Can be updated to be passed in future versions
+    container_name = 'pytest-logs'
 
-    # Check for files in the test_results dir
+    # Check if <pytest-results> exists
+    match = any(container.name == container_name for container in container_list)
 
-    # Check if the files exist in the container
+    # Create container if not exists
+    while not match:
+        container_client = blob_service_client.create_container(container_name)
 
-    # Upload any files that do not exist to the container
+        # Check if <pytest-results> exists after container creation
+        match = any(container.name == container_name for container in container_list)
 
-    # Delete the files from local
+        # added a break statement for debugging
+        if match:
+            break
 
-    # Create a unique name for the container
-    container_name = str(uuid.uuid4())
-
-    # Create the container
-    container_client = blob_service_client.create_container(container_name)
-
-    # Create a local directory to hold blob data
-    local_path = "./data"
+    # Check that log file exists
+    local_path = f'.//{container_name}'
     if not os.path.exists(local_path):
         os.mkdir(local_path)
 
-    # Create a file in the local data directory to upload and download
-    local_file_name = str(uuid.uuid4()) + ".txt"
-    upload_file_path = os.path.join(local_path, local_file_name)
+    # Check for files in the <pytest_logs> dir
+    logfiles = [file for file in os.listdir(local_path) if os.path.isfile(os.path.join(local_path, file))]
 
-    # Write text to the file
-    file = open(file=upload_file_path, mode='w')
-    file.write("Hello, World!")
-    file.close()
 
-    # Create a blob client using the local file name as the name for the blob
-    blob_client = blob_service_client.get_blob_client(container=container_name, blob=local_file_name)
+    # Check if the files exist in the container
+    for file in logfiles:
+        upload_file_path = os.path.join(local_path, file)
 
-    print("\nUploading to Azure Storage as blob:\n\t" + local_file_name)
-    
-    # Upload the created file
-    with open(file=upload_file_path, mode="rb") as data:
-        blob_client.upload_blob(data)
+        # Create a blob client using the local file name as the name for the blob
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=file)
+        print('\nProcessing files.')
 
-    # Download the blob to a local file
-    # Add 'DOWNLOAD' before the .txt extension so you can see both files in the data directory
-    download_file_path = os.path.join(local_path, str.replace(local_file_name ,'.txt', 'DOWNLOAD.txt'))
-    container_client = blob_service_client.get_container_client(container= container_name) 
-    print("\nDownloading blob to \n\t" + download_file_path)
-    
-    with open(file=download_file_path, mode="wb") as download_file:
-        #download_file.write(container_client.download_blob(blob.name).readall())
-        download_file.write(container_client.download_blob(blob_client.blob_name).readall())
+        # Upload the files
+        try:
+            print(f'\n\t{file}:')
+            print('\t\tUploading to Azure Storage as blob.')
+            with open(file=upload_file_path, mode='rb') as data:
+                blob_client.upload_blob(data)
+            print('\t\tUpload successful.')
+            # Write record of upload to log file
 
-    # Clean up
-    print("\nPress the Enter key to begin clean up")
-    input()
+        except Exception as e:
+            print(f'\n\t\\tError uploading {file}: {e}')
 
-    print("Deleting blob container...")
-    container_client.delete_container()
+        #Clean up
+        finally:
+            print(f'\t\tDeleting local copy.')
+            os.remove(upload_file_path)
 
-    print("Deleting the local source and downloaded files...")
-    os.remove(upload_file_path)
-    os.remove(download_file_path)
+    print('\nAll files successfully uploaded. Starting clean up.')
+
     os.rmdir(local_path)
-
-    print("Done")
+    print(f'\nDeleting directory from local environment...\n\t{local_path} directory deleted.')
 
 except Exception as ex:
-    print('Exception:')
+    print('\n\tException:')
     print(ex)
+
+finally:
+    print('\nEnd of Pytest log upload to Azure blob script.')
