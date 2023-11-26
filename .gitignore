@@ -1,0 +1,8 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+/.vscode/
+/.pytest_cache/
+/.idea/
+/__pycache__/
+/test_results/

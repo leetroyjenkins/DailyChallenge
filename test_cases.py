@@ -16,6 +16,11 @@ class TestselectionSort:
         result = [1, 3, 4, 7, 9]
         assert gfg.selectionSort.selectionSort(self.arr, self.n) == result
 
+    def test_selectionSort_02(self):
+        self.n = 4
+        self.arr = [4, 1, 3, 9, 7]
+        result = [1, 3, 4, 7, 9]
+        assert gfg.selectionSort.selectionSort(self.arr, self.n) == result
 
 class TestinsertionSort:
     def test_insertionSort_01(self):
